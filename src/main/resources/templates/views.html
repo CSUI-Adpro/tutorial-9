@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Article Views</title>
+    <script
+        src="https://code.jquery.com/jquery-3.6.0.min.js"
+        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+        crossorigin="anonymous">
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 min-h-screen">
+    <div th:replace="navbar :: navbar"></div>
+    <div class="w-full h-full px-4 pt-4 text-white">
+        <h1 class="font-bold text-xl text-center mb-4">List of Views</h1>
+        <form id="submit_form" action="/api/article/views" class="flex items-center">
+            <div>
+                <label>Date:</label>
+                <input type="date" id="viewdateinput" name="viewdate" value="2022-01-12" class="ml-1 bg-gray-700 text-white rounded-md px-4 py-2">
+            </div>
+            <div class="ml-8">
+                <label>Page:</label>
+                <input type="number" name="page" id="pageinput" value="1" class="ml-1 bg-gray-700 text-white rounded-md px-4 py-2">
+            </div>
+            <div class="mx-8">
+                <label>Data per page:</label>
+                <select name="limit" id="limitinput" class="ml-1 bg-gray-700 text-white rounded-md px-4 py-2">
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+            </div>
+            <button type="submit" id="submit_button" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Go</button>
+        </form>
+        <div id="result" class="mt-5 w-full">
+            <table id="table_result" class="w-full border-1 border-solid border-collapse border-gray-800">
+                <thead>
+                <tr>
+                    <th class="border-1 border-solid border-collapse border-gray-600">No</th>
+                    <th class="border-1 border-solid border-collapse border-gray-600">IP Address</th>
+                    <th class="border-1 border-solid border-collapse border-gray-600">Article</th>
+                    <th class="border-1 border-solid border-collapse border-gray-600">Viewed on</th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+            <div id="loading_spinner" class="hidden">
+                <div th:replace="loader :: loader"></div>
+            </div>
+        </div>
+    </div>
+</body>
+
+<script>
+    $(document).ready(function() {
+        $("#submit_form").submit(function(event) {
+
+            $("#submit_button").prop('disabled', true);
+            
+            event.preventDefault();
+
+            // dapetin data form
+            var $form = $( this )
+            var page = $('#pageinput').val()
+            var limit = $('#limitinput').val()
+            
+            // convert YYYY-MM-DD to DD-MM-YYYY
+            var date = $("#viewdateinput").val()
+            var dateComp = date.split('-')
+            date = `${dateComp[2]}-${dateComp[1]}-${dateComp[0]}`
+            
+            var send_to = `${$form.attr('action')}/${date}\?page=${page}\&limit=${limit}`
+
+            $.ajax({
+                type: "get",
+                url: send_to,
+                dataType: 'json',
+                beforeSend: function() {
+                    $("#loading_spinner").css("display", "block");
+                    $("#table_result tbody").empty()
+                    //$("#table_result").css("display", "none")
+                    
+                },
+                success: function(data_returned, textStatus, jqXHR) {
+
+                    //console.log("returned", data_returned);
+                    $("#loading_spinner").css("display", "none");
+                    $("#submit_button").prop('disabled', false);
+                    
+                    var trHTML = ""
+                    $.each(data_returned, function (i, item) {
+                        var articleLink = `/article/${item.article.id}`
+                        trHTML += `<tr><td style="text-align: center; border: 1px solid rgb(75 85 99); border-collapse: collapse;">${(page-1)*limit + i + 1}</td><td style="text-align: center; border: 1px solid rgb(75 85 99); border-collapse: collapse;">${item.ipAddress}</td><td style="text-align: center; border: 1px solid rgb(75 85 99); border-collapse: collapse;"><a href=${articleLink}>${item.article.judul}</a></td ><td style="text-align: center; border: 1px solid rgb(75 85 99); border-collapse: collapse;">${item.date}</td></tr>`
+                    });
+                    $('#table_result').append(trHTML);
+
+                },
+                error: function(data_returned) {
+
+                    //$("#loading_content").css('display', "none");
+                    $("#loading_spinner").css("display", "none");
+                    $("#submit_button").prop("disabled", false);
+                }
+            });
+
+
+        })
+    })
+</script>
+
+<style>
+    table, th, td {
+        border: 1px solid black;
+    }
+</style>
+</html>

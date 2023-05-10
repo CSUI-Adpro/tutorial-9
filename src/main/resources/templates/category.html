@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Categories</title>
+    <script
+            src="https://code.jquery.com/jquery-3.6.0.min.js"
+            integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+            crossorigin="anonymous">
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 min-h-screen">
+    <div th:replace="navbar :: navbar"></div>
+    <div class="w-full h-full px-4 pt-4 text-white">
+        <h1 class="font-bold text-xl text-center mb-4">List of Categories</h1>
+        <div id="result" class="mt-5 w-full">
+            <table id="table_result" class="w-full border-1 border-solid border-collapse border-gray-800">
+                <thead>
+                <tr>
+                    <th class="border-1 border-solid border-collapse border-gray-600">No</th>
+                    <th class="border-1 border-solid border-collapse border-gray-600">Name</th>
+                    <th class="border-1 border-solid border-collapse border-gray-600">Most Recent Article</th>
+                    <th class="border-1 border-solid border-collapse border-gray-600">Number of Articles</th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+            <div id="loading_spinner" class="hidden">
+                <div th:replace="loader :: loader"></div>
+            </div>
+        </div>
+    </div>
+</body>
+
+<script>
+    $(document).ready(function() {
+            
+            // dapetin data form
+            var $form = $( this )
+
+            var send_to = `/api/category`
+
+            $.ajax({
+                type: "get",
+                url: send_to,
+                dataType: 'json',
+                beforeSend: function() {
+                    $("#loading_spinner").css("display", "block");
+                    $("#table_result tbody").empty()
+                    //$("#table_result").css("display", "none")
+                    
+                },
+                success: function(data_returned, textStatus, jqXHR) {
+                    $("#loading_spinner").css("display", "none");
+                    $("#submit_button").prop('disabled', false);
+                    
+                    var trHTML = ""
+                    $.each(data_returned, function (i, item) {
+                        trHTML += `<tr><td style="text-align: center; border: 1px solid rgb(75 85 99); border-collapse: collapse;">${i + 1}</td><td style="text-align: center; border: 1px solid rgb(75 85 99); border-collapse: collapse;">${item.name}</td><td style="text-align: center; border: 1px solid rgb(75 85 99); border-collapse: collapse;">${item.mostRecentArticle}</td><td style="text-align: center; border: 1px solid rgb(75 85 99); border-collapse: collapse;">${item.numArticles}</td></tr>`
+                    });
+                    $('#table_result').append(trHTML);
+
+                },
+                error: function(data_returned) {
+                    console.log("ERROR", data_returned)
+
+                    //$("#loading_content").css('display', "none");
+                    $("#loading_spinner").css("display", "none");
+                    $("#submit_button").prop("disabled", false);
+                }
+            });
+
+
+        })
+</script>
+
+<style>
+    table, th, td {
+        border: 1px solid black;
+    }
+</style>
+</html>
