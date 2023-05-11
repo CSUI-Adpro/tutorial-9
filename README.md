@@ -66,3 +66,12 @@ Tutorial ini juga memuat beberapa _guide_ lain yang bisa dibaca untuk memenuhi _
    ```/category``` memiliki response time rata-rata paling cepat, yaitu 0.0107966625 s
 4. Endpoint mana yang memiliki response time rata-rata paling lambat? Berapa response time rata-ratanya?
    ```/api/category``` memiliki response time rata-rata paling lambat, yaitu 13.542589166900001 s
+5. Apa yang menyebabkan response time endpoint tersebut lambat?
+   Response time endpoint tersebut lambat karena terdapat operasi setingkat O(N^2) pada bagian pengambilan informasi terhadap suatu category. Informasi yang dibutuhkan sebenarnya hanya yang most recent, tetapi setiap operasi dilakukan pencarian menggunakan pembandingan (linear search) maka dari situ sebaiknya sudah diurutkan saat masuk ke dalam database termasuk querynya yaitu dengan kata kunci pengurutan secara DESCENDING yang disusun di dalam articleRepository.
+6. Berapa response time rata-rata endpoint tersebut setelah dioptimasi?
+   Response time rata-rata endpoint ```/api/category``` tersebut setelah dioptimasi adalah 0.1201463125 s
+7. Bagaimana pengaruh endpoint yang lambat tersebut terhadap JVM memory?
+   - Leak Memory
+     Objek-objek yang tidak lagi digunakan tetapi tetap ada dalam memori, maka hal ini dapat menyebabkan peningkatan penggunaan memori oleh JVM. Jika memory leak terjadi secara terus-menerus, penggunaan memori akan terus meningkat seiring waktu, yang dapat menyebabkan JVM kehabisan memori dan mengakibatkan kinerja yang buruk atau bahkan kegagalan aplikasi.
+   - Object Accumulation
+     Penggunaan memori dapat terus meningkat seiring bertambahnya jumlah permintaan. Jika objek-objek ini tidak dilepaskan dengan benar setelah digunakan, hal ini dapat menyebabkan peningkatan penggunaan memori dan memori yang tidak terbebaskan. Akumulasi objek yang terus-menerus dapat menyebabkan JVM kehabisan memori dan menyebabkan kinerja yang buruk atau kegagalan aplikasi.

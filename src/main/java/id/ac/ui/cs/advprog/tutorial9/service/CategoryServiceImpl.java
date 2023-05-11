@@ -2,6 +2,7 @@ package id.ac.ui.cs.advprog.tutorial9.service;
 
 import id.ac.ui.cs.advprog.tutorial9.model.Article;
 import id.ac.ui.cs.advprog.tutorial9.model.Category;
+import id.ac.ui.cs.advprog.tutorial9.repository.ArticleRepository;
 import id.ac.ui.cs.advprog.tutorial9.repository.CategoryRepository;
 
 import java.util.List;
@@ -11,6 +12,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class CategoryServiceImpl implements CategoryService{
+    @Autowired
+    private ArticleRepository articleRepository;
 
     @Autowired
     private CategoryRepository categoryRepository;
@@ -26,16 +29,10 @@ public class CategoryServiceImpl implements CategoryService{
 
         // get most Recent Article
         for(var cat : allCat) {
-
-            Article mostRecent = cat.getArticles().get(0);
-            for(var art : cat.getArticles()) {
-                if(art.getCreatedAt().getTime() > mostRecent.getCreatedAt().getTime()) {
-                    mostRecent = art;
-                }
-            }
-
+            Article mostRecent = articleRepository.findArticleByCategoryId(cat.getId());
+            Integer numArticles = articleRepository.getArticleCountByCategoryId(cat.getId());
             cat.setMostRecentArticle(mostRecent.getJudul());
-            cat.setNumArticles(cat.getArticles().size());
+            cat.setNumArticles(numArticles);
         }
         return allCat;
     }
