@@ -42,36 +42,34 @@ Tutorial ini juga memuat beberapa _guide_ lain yang bisa dibaca untuk memenuhi _
 
 ## Jawaban
 1. Data apa saja yang dapat diamati melalui grafana? 
-   Terdapat beberapa data yang dapat diamati melalui Grafana, yaitu:
-   - Quick Facts berupa Uptime, Start time, Heap used, dan Non-Heap used
-   - I/O Overview berupa Rate, Errors, Duration, dan Utilization
-   - JVM Memory berupa JVM Heap, JVM Non-Heap, JVM Total, dan JVM Process Memory
-   - JVM Misc berupa CPU Usage, Load, Threads, Thread States, GC Pressure, Log Events, dan File Descriptors
-   - JVM Memory Pools (Heap) berupa G1 Eden Space, G1 Old Gen, G1 Survivor Space, Metaspace, Compressed Class Space, dan Code Cache
-   - Garbage Collection berupa Collections, Pause Durations, dan Allocated/Promoted
-   - Classloading berupa Classes loaded, Class delta, direct, mapped, dan mapped-'non-volatile memory'
+   > Terdapat beberapa data yang dapat diamati melalui Grafana, yaitu:
+   > - Quick Facts berupa Uptime, Start time, Heap used, dan Non-Heap used
+   > - I/O Overview berupa Rate, Errors, Duration, dan Utilization
+   > - JVM Memory berupa JVM Heap, JVM Non-Heap, JVM Total, dan JVM Process Memory
+   > - JVM Misc berupa CPU Usage, Load, Threads, Thread States, GC Pressure, Log Events, dan File Descriptors
+   > - JVM Memory Pools (Heap) berupa G1 Eden Space, G1 Old Gen, G1 Survivor Space, Metaspace, Compressed Class Space, dan Code Cache
+   > - Garbage Collection berupa Collections, Pause Durations, dan Allocated/Promoted
+   > - Classloading berupa Classes loaded, Class delta, direct, mapped, dan mapped-'non-volatile memory'
 2. Berapa rata-rata response time dari setiap endpoint?
-   Rata-rata response time dari setiap endpoint adalah sebagai berikut:
-   - /: 0.16815775 s
-   ```http_server_requests_seconds_sum{job="spring_boot_app",uri="/"}/http_server_requests_seconds_count{job="spring_boot_app",uri="/"}```
-   - /api/article: 0.016582416 s
-   ```http_server_requests_seconds_sum{job="spring_boot_app",uri="/api/article"}/http_server_requests_seconds_count{job="spring_boot_app",uri="/api/article"}```
-   - /api/category: 13.542589166900001 s
-   ```http_server_requests_seconds_sum{job="spring_boot_app",uri="/api/category"}/http_server_requests_seconds_count{job="spring_boot_app",uri="/api/category"}```
-   - /category: 0.0107966625 s
-   ```http_server_requests_seconds_sum{job="spring_boot_app",uri="/category"}/http_server_requests_seconds_count{job="spring_boot_app",uri="/category"}```
-   - /article/{id}: 0.1156326045 s
-   ``http_server_requests_seconds_sum{job="spring_boot_app",uri="/article/{id}"}/http_server_requests_seconds_count{job="spring_boot_app",uri="/article/{id}"}``
+   > Rata-rata response time dari setiap endpoint adalah sebagai berikut: <br>
+   > - `/`: 0.16815775 s <br>
+   > > http_server_requests_seconds_sum{job="spring_boot_app",uri="/"}/http_server_requests_seconds_count{job="spring_boot_app",uri="/"}
+   > - `/api/article`: 0.016582416 s <br>
+   > > http_server_requests_seconds_sum{job="spring_boot_app",uri="/api/article"}/http_server_requests_seconds_count{job="spring_boot_app",uri="/api/article"}
+   > - `/api/category`: 13.542589166900001 s <br>
+   > > http_server_requests_seconds_sum{job="spring_boot_app",uri="/api/category"}/http_server_requests_seconds_count{job="spring_boot_app",uri="/api/category"}
+   > - `/category`: 0.0107966625 s <br>
+   > > http_server_requests_seconds_sum{job="spring_boot_app",uri="/category"}/http_server_requests_seconds_count{job="spring_boot_app",uri="/category"}
+   > - `/article/{id}`: 0.1156326045 s <br>
+   > > http_server_requests_seconds_sum{job="spring_boot_app",uri="/article/{id}"}/http_server_requests_seconds_count{job="spring_boot_app",uri="/article/{id}"}
 3. Endpoint mana yang memiliki response time rata-rata paling cepat?
-   ```/category``` memiliki response time rata-rata paling cepat, yaitu 0.0107966625 s
+   > ```/category``` memiliki response time rata-rata paling cepat, yaitu 0.0107966625 s
 4. Endpoint mana yang memiliki response time rata-rata paling lambat? Berapa response time rata-ratanya?
-   ```/api/category``` memiliki response time rata-rata paling lambat, yaitu 13.542589166900001 s
+   > ```/api/category``` memiliki response time rata-rata paling lambat, yaitu 13.542589166900001 s
 5. Apa yang menyebabkan response time endpoint tersebut lambat?
-   Response time endpoint tersebut lambat karena terdapat operasi setingkat O(N^2) pada bagian pengambilan informasi terhadap suatu category. Informasi yang dibutuhkan sebenarnya hanya yang most recent, tetapi setiap operasi dilakukan pencarian menggunakan pembandingan (linear search) maka dari situ sebaiknya sudah diurutkan saat masuk ke dalam database termasuk querynya yaitu dengan kata kunci pengurutan secara DESCENDING yang disusun di dalam articleRepository.
+   > Response time endpoint tersebut lambat karena terdapat operasi setingkat O(N^2) pada bagian pengambilan informasi terhadap suatu category. Informasi yang dibutuhkan sebenarnya hanya yang most recent, tetapi setiap operasi dilakukan pencarian menggunakan pembandingan (linear search) maka dari situ sebaiknya sudah diurutkan saat masuk ke dalam database termasuk querynya yaitu dengan kata kunci pengurutan secara DESCENDING yang disusun di dalam articleRepository.
 6. Berapa response time rata-rata endpoint tersebut setelah dioptimasi?
-   Response time rata-rata endpoint ```/api/category``` tersebut setelah dioptimasi adalah 0.1201463125 s
+   > Response time rata-rata endpoint ```/api/category``` tersebut setelah dioptimasi adalah 0.1201463125 s
 7. Bagaimana pengaruh endpoint yang lambat tersebut terhadap JVM memory?
-   - Leak Memory
-     Objek-objek yang tidak lagi digunakan tetapi tetap ada dalam memori, maka hal ini dapat menyebabkan peningkatan penggunaan memori oleh JVM. Jika memory leak terjadi secara terus-menerus, penggunaan memori akan terus meningkat seiring waktu, yang dapat menyebabkan JVM kehabisan memori dan mengakibatkan kinerja yang buruk atau bahkan kegagalan aplikasi.
-   - Object Accumulation
-     Penggunaan memori dapat terus meningkat seiring bertambahnya jumlah permintaan. Jika objek-objek ini tidak dilepaskan dengan benar setelah digunakan, hal ini dapat menyebabkan peningkatan penggunaan memori dan memori yang tidak terbebaskan. Akumulasi objek yang terus-menerus dapat menyebabkan JVM kehabisan memori dan menyebabkan kinerja yang buruk atau kegagalan aplikasi.
+   > Leak Memory : Objek-objek yang tidak lagi digunakan tetapi tetap ada dalam memori, maka hal ini dapat menyebabkan peningkatan penggunaan memori oleh JVM. Jika memory leak terjadi secara terus-menerus, penggunaan memori akan terus meningkat seiring waktu, yang dapat menyebabkan JVM kehabisan memori dan mengakibatkan kinerja yang buruk atau bahkan kegagalan aplikasi.
+   > Object Accumulation : Penggunaan memori dapat terus meningkat seiring bertambahnya jumlah permintaan. Jika objek-objek ini tidak dilepaskan dengan benar setelah digunakan, hal ini dapat menyebabkan peningkatan penggunaan memori dan memori yang tidak terbebaskan. Akumulasi objek yang terus-menerus dapat menyebabkan JVM kehabisan memori dan menyebabkan kinerja yang buruk atau kegagalan aplikasi.
